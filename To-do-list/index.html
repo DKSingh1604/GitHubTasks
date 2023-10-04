@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do-List</title>
+    <link rel="shortcut icon" href="todo.jpg" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1{
+            font-size: 70px;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        .todo-container {
+            width: 500px;
+            height: 97vh;
+            padding-left: 100px;
+            background: rgb(193,38,106);
+            background: radial-gradient(circle, rgba(193,38,106,1) 0%, rgba(21,149,232,1) 0%);
+            border: 1px solid black;
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .todo-item input[type="text"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .listbox{
+            max-height:420px;
+            width: 400px;
+            margin-top: 20px;
+            
+            padding-top: 30px;
+            padding-bottom: 30px;
+            padding-right: 30px;
+        }
+
+        .taskbox{
+            height: 35px;
+            
+            border-radius: 10px;
+        }
+
+        .taskitembox{
+            height: 30px;
+            border-radius: 10px;
+        }
+        .btn {
+            width: 115px;
+            height: 40px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 100px;
+            padding: 5px 10px;
+            
+        }
+        .btn-danger {
+            background-color: #fa2605;
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h1>To-do List</h1>
+        <div>
+            <input type="text" id="taskInput" class="taskbox" placeholder="Type your new task">
+            <button id="addTask" class="btn">Add Task</button>
+        </div>
+        <div id="taskList" class="listbox"></div>
+    </div>
+
+    <script>
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+    
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('div');
+                taskItem.classList.add('todo-item');
+                taskItem.innerHTML = `
+                    <input type="text" value="${task}" data-index="${index}" class="taskitembox">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-danger btn-delete" data-index="${index}">Delete</button>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+    
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    
+
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('btn-edit')) {
+                const index = e.target.previousElementSibling.dataset.index;
+                const updatedTask = prompt('Edit task:', tasks[index]);
+                if (updatedTask !== null) {
+                    tasks[index] = updatedTask;
+                    saveTasks();
+                    renderTasks();
+                }
+                else if (updatedTask === '') {
+                    alert('Task name cannot be blank.');
+                }
+            }
+        });
+    
+
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('btn-delete')) {
+                const index = e.target.dataset.index;
+                tasks.splice(index, 1);
+                saveTasks();
+                renderTasks();
+            }
+        });
+    
+
+        document.getElementById('taskInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                addTask();
+            }
+        });
+    
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const newTask = taskInput.value.trim();
+            
+            if (newTask === '') {
+                alert('Task name cannot be blank.');
+                return;
+            }
+    
+            tasks.push(newTask);
+            taskInput.value = '';
+            saveTasks();
+            renderTasks();
+        }
+    
+
+        document.getElementById('addTask').addEventListener('click', addTask);
+    
+
+        renderTasks();
+    </script>
+    
+</body>
+</html>
